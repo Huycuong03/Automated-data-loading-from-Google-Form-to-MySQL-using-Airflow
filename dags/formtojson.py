@@ -6,13 +6,13 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
-CLIENT_SECRET = 'client_secret.json'
+CLIENT_SECRET = './dags/client_secret.json'
 SCOPES = [
     'https://www.googleapis.com/auth/forms.body.readonly',
     'https://www.googleapis.com/auth/forms.responses.readonly'
 ]
 FORMID = '1PknKhOTcxiA-Tm-aqpqGg-wALJcOtR-y8TRn9tuONjE'
-def formtocsv():
+def formtojson(ti):
     creds = None
     if os.path.exists('token.json'):
         creds = Credentials.from_authorized_user_file('token.json', SCOPES)
@@ -28,6 +28,15 @@ def formtocsv():
 
     service_form = build('forms', 'v1', credentials=creds)
 
+    if not os.path.exists('data/meta.json'):
+        meta = (
+            service_form.forms()
+            .get(formId=FORMID)
+            .execute()
+        )
+        with open('data/meta.json', 'w') as file:
+            dump(meta, file)
+
     now = datetime.now(timezone.utc)
     yesterday = now - timedelta(days=1)
     yesterday_midnight = yesterday.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -39,5 +48,7 @@ def formtocsv():
         .list(formId=FORMID, filter=f'timestamp >= {yesterday_timestamp}')
         .execute()
     )
-    with open(f'data/{yesterday_timestamp[0:10].replace('-', '_')}.json', 'w') as file:
+    file_path = f'data/{yesterday_timestamp[0:10].replace('-', '_')}.json'
+    with open(file_path, 'w') as file:
         dump(yesterday_response_list, file)
+        ti.xcom_push(key='response_json_file_path', value=file_path)
