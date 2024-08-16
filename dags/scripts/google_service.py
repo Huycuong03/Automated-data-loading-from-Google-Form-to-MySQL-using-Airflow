@@ -3,7 +3,7 @@ from googleapiclient import discovery
 
 def create_forms_service(scopes=None):
     credentials = service_account.Credentials.from_service_account_file(
-        'dags/service_account_key.json',
+        'dags/scripts/service_account_key.json',
         scopes=scopes
     )
     

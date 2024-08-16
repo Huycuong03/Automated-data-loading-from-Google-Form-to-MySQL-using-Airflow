@@ -1,6 +1,5 @@
-import json
 from datetime import datetime, timedelta, timezone
-from google_service import create_forms_service
+from scripts.google_service import create_forms_service
 
 SCOPES = [
     "https://www.googleapis.com/auth/forms.body.readonly",
@@ -13,9 +12,5 @@ def responses_to_json(ti):
     today = datetime.now(timezone.utc)
     yesterday = today - timedelta(days=1)
 
-    data = service.forms().responses().list(formId=FORMID, filter=f'timestamp >= {yesterday.isoformat('T')}Z').execute()
-    file_name = f'data/json/{yesterday.strftime("%Y_%m_%d")}.json'
-    
-    with open(file_name, 'w') as file:
-        json.dump(data, file)
-        ti.xcom_push(key='json_file', value=file_name)
+    data = service.forms().responses().list(formId=FORMID, filter=f'timestamp >= {yesterday.strftime('%Y-%m-%dT%H:%M:%SZ')}').execute()
+    ti.xcom_push(key='json_data', value=data)
