@@ -14,7 +14,7 @@ with DAG(
     dag_id='forms_to_sql_v11',
     default_args=default_args,
     start_date=datetime(2024, 8, 14, 7),
-    schedule_interval='@daily'
+    schedule_interval='@weekly'
 ) as dag:
     task1 = PythonOperator(
         task_id='task1',

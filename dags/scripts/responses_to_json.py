@@ -10,7 +10,7 @@ FORMID = "1PknKhOTcxiA-Tm-aqpqGg-wALJcOtR-y8TRn9tuONjE"
 def responses_to_json(ti):
     service = create_forms_service(SCOPES)
     today = datetime.now(timezone.utc)
-    yesterday = today - timedelta(days=1)
+    today_last_week = today - timedelta(days=7)
 
-    data = service.forms().responses().list(formId=FORMID, filter=f'timestamp >= {yesterday.strftime('%Y-%m-%dT%H:%M:%SZ')}').execute()
+    data = service.forms().responses().list(formId=FORMID, filter=f'timestamp >= {today_last_week.strftime('%Y-%m-%dT%H:%M:%SZ')}').execute()
     ti.xcom_push(key='json_data', value=data)
