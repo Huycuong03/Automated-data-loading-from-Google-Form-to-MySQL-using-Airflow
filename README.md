@@ -1,2 +1,2 @@
-# Automated data loading from Google Form to MySQL using Airflow
+# Automated data loading from Google Form to PostgreSQL using Airflow
  
